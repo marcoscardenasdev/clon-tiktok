@@ -33,4 +33,9 @@ export class VideosController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.videosService.remove(id);
   }
+
+  @Delete('deactivate/:id')
+  deactivateVideo(@Param('id', ParseIntPipe) id: number) {
+    return this.videosService.deactivateVideo(id);
+  }
 }
