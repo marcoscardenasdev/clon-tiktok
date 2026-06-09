@@ -16,28 +16,28 @@ export class CreateVideoDto {
     @IsUrl()
     public videoUrl: string;
 
-    @IsString()
-    @Matches(/@/)
-    @MinLength(3)
-    public author: string;
-
     @IsOptional()
     @IsInt()
     @IsPositive()
     @Type(() => Number)
     public likes: number;
 
+    @IsInt()
+    @IsPositive()
+    @Type(() => Number)
+    public userId: number;
+
     constructor(
         title: string,
         description: string,
         videoUrl: string,
-        author: string,
         likes: number,
+        userId: number,
     ) {
         this.title = title;
         this.description = description;
         this.videoUrl = videoUrl;
-        this.author = author;
         this.likes =  likes;
+        this.userId = userId;
     }
 }

@@ -3,18 +3,28 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVideoDto, UpdateVideoDto } from './dto';
 import { PaginationDto } from '../common/dto';
 import { PrismaService } from '../prisma.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class VideosService {
 
   constructor(
     private readonly prismaService: PrismaService,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createVideoDto: CreateVideoDto) {
 
+    const { userId, ...rest} = createVideoDto;
+
+    // Antes de guardar el video en la BD, comprobar que el usuario exista en la BD
+    await this.usersService.findOne(userId);
+
     const video = await this.prismaService.video.create({
-      data: createVideoDto,
+      data: {
+        ...rest,
+        userId,
+      },
     });
 
     return video;
@@ -27,6 +37,14 @@ export class VideosService {
     const videos = await this.prismaService.video.findMany({
       take: limit,
       skip: ( offset - 1 ) * limit,
+      include: {
+        user: {
+          select: {
+            username: true,
+            id: true,
+          },
+        },
+      },
     });
 
     const total = await this.prismaService.video.count({});
@@ -37,7 +55,7 @@ export class VideosService {
       data: videos,
       meta: {
         limit,
-        offset,
+        page: offset,
         total,
         lastPage,
       },
