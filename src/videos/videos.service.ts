@@ -37,6 +37,7 @@ export class VideosService {
     const videos = await this.prismaService.video.findMany({
       take: limit,
       skip: ( offset - 1 ) * limit,
+      where: { available: true },
       include: {
         user: {
           select: {
@@ -47,7 +48,9 @@ export class VideosService {
       },
     });
 
-    const total = await this.prismaService.video.count({});
+    const total = await this.prismaService.video.count({
+      where: { available: true },
+    },);
 
     const lastPage = Math.ceil(total / limit);
     
@@ -65,7 +68,7 @@ export class VideosService {
   async findOne(id: number) {
 
     const video = await this.prismaService.video.findFirst({
-      where: { id },
+      where: { id, available: true },
     });
 
     if ( !video ) {
@@ -80,7 +83,7 @@ export class VideosService {
     await this.findOne(id);
     
     const video = await this.prismaService.video.update({
-      where: { id },
+      where: { id, available: true },
       data: updateVideoDto,
     });
 
@@ -95,5 +98,19 @@ export class VideosService {
     await this.prismaService.video.delete({
       where: { id },
     });
+  }
+
+  async deactivateVideo(id: number) {
+
+    await this.findOne(id);
+
+    const video = await this.prismaService.video.update({
+      where: { id },
+      data: { available: false },
+    });
+
+    return video;
+
+
   }
 }
