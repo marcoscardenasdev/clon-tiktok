@@ -7,13 +7,13 @@ export class PaginationDto {
     @IsInt()
     @IsPositive()
     @Type(() => Number)
-    public limit: number;
+    public limit?: number;
 
     @IsOptional()
     @IsInt()
     @IsPositive()
     @Type(() => Number)
-    public offset: number;
+    public offset?: number;
 
     constructor(
         limit: number,

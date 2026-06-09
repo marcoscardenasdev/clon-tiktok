@@ -18,8 +18,32 @@ model Video {
   title String
   description String?
   videoUrl String
-  author String
   likes Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  comments Comment[]
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @unique
+  email String @unique
+  bio String?
+
+  videos Video[]
+  comments Comment[]
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  text String
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+
+  video Video @relation(fields: [videoId], references: [id])
+  videoId Int
 }
