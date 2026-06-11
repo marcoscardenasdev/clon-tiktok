@@ -1,8 +1,8 @@
 import { ConflictException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 
-import { CreateUserDto } from './dto/create-user.dto';
 import { PaginationDto } from '../common/dto';
 import { PrismaService } from '../prisma.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -12,18 +12,6 @@ export class UsersService {
   constructor(
     private readonly prismaService: PrismaService,
   ) {}
-
-  async create(createUserDto: CreateUserDto) {
-    try {
-      const user = await this.prismaService.user.create({
-        data: createUserDto,
-      });
-
-      return user;
-    } catch (error) {
-      this.handlerDBExceptions(error); 
-    }
-  }
 
   async findAll(paginationDto: PaginationDto) {
 
@@ -64,16 +52,6 @@ export class UsersService {
     return videos;
   }
 
-  private handlerDBExceptions(error: any) {
-    if (error.code === 'P2002') {
-      throw new ConflictException(error.meta.driverAdapterError.cause.originalMessage);
-    }
-    
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, checks server logs');
-
-  }
-
   async findOne(id: number) {
     const user = await this.prismaService.user.findFirst({
       where: { id },
@@ -82,5 +60,17 @@ export class UsersService {
     if ( !user ) {
       throw new NotFoundException(`User with id #${ id } not found`);
     }
+  }
+
+  async update( id: number, updateUserDto: UpdateUserDto) {
+
+    await this.findOne(id);
+
+    const newUser = await this.prismaService.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
+
+    return newUser;
   }
 }

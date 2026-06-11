@@ -32,7 +32,7 @@ model User {
   username String @unique
   email String @unique
   bio String?
-
+  password String
   videos Video[]
   comments Comment[]
 }

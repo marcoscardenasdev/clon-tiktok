@@ -23,7 +23,7 @@ export class CommentsService {
 
     // Comprobar que el usuario como el video existan en la BD
     await this.usersService.findOne(userId);
-    await this.videosService.findOne(videoId);
+    await this.videosService.findOneVideo(videoId);
 
     // Si existen, guardamos el video en la BD
     const comment = await this.prismaService.comment.create({
@@ -41,7 +41,7 @@ export class CommentsService {
 
 
     // Comprobar que el id del video existan en la BD
-    await this.videosService.findOne(videoId);
+    await this.videosService.findOneVideo(videoId);
 
     const { limit = 10, offset = 1} = paginationDto;
 
