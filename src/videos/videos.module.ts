@@ -3,10 +3,10 @@ import { Module } from '@nestjs/common';
 import { VideosService } from './videos.service';
 import { VideosController } from './videos.controller';
 import { PrismaService } from '../prisma.service';
-import { UsersModule } from '../users/users.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [ UsersModule],
+  imports: [ AuthModule ],
   controllers: [VideosController],
   providers: [VideosService, PrismaService],
   exports: [ VideosService ]

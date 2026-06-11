@@ -3,27 +3,21 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVideoDto, UpdateVideoDto } from './dto';
 import { PaginationDto } from '../common/dto';
 import { PrismaService } from '../prisma.service';
-import { UsersService } from '../users/users.service';
+import { User } from 'generated/prisma/client';
 
 @Injectable()
 export class VideosService {
 
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly usersService: UsersService,
   ) {}
 
-  async create(createVideoDto: CreateVideoDto) {
-
-    const { userId, ...rest} = createVideoDto;
-
-    // Antes de guardar el video en la BD, comprobar que el usuario exista en la BD
-    await this.usersService.findOne(userId);
+  async create(createVideoDto: CreateVideoDto, user: User) {
 
     const video = await this.prismaService.video.create({
       data: {
-        ...rest,
-        userId,
+        ...createVideoDto,
+        userId: user.id,
       },
     });
 
@@ -65,7 +59,7 @@ export class VideosService {
     };
   }
 
-  async findOne(id: number) {
+  async findOneVideo(id: number) {
 
     const video = await this.prismaService.video.findFirst({
       where: { id, available: true },
@@ -78,31 +72,44 @@ export class VideosService {
     return video;
   }
 
-  async update(id: number, updateVideoDto: UpdateVideoDto) {
+  async findOne(id: number, user: User) {
 
-    await this.findOne(id);
+    const video = await this.prismaService.video.findFirst({
+      where: { id, available: true, user },
+    });
+
+    if ( !video ) {
+      throw new NotFoundException(`Video with ID #${ id } not found`);
+    }
+
+    return video;
+  }
+
+  async update(id: number, updateVideoDto: UpdateVideoDto, user: User) {
+
+    await this.findOne(id, user);
     
     const video = await this.prismaService.video.update({
-      where: { id, available: true },
+      where: { id, available: true, user },
       data: updateVideoDto,
     });
 
     return video;
   }
 
-  async remove(id: number) {
+  async remove(id: number, user: User) {
 
     // Comprobar que el video existe en la BD
-    await this.findOne(id);
+    await this.findOne(id, user);
 
     await this.prismaService.video.delete({
       where: { id },
     });
   }
 
-  async deactivateVideo(id: number) {
+  async deactivateVideo(id: number, user: User) {
 
-    await this.findOne(id);
+    await this.findOne(id, user);
 
     const video = await this.prismaService.video.update({
       where: { id },
@@ -110,7 +117,5 @@ export class VideosService {
     });
 
     return video;
-
-
   }
 }

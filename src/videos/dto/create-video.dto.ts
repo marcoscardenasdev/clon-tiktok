@@ -22,22 +22,15 @@ export class CreateVideoDto {
     @Type(() => Number)
     public likes: number;
 
-    @IsInt()
-    @IsPositive()
-    @Type(() => Number)
-    public userId: number;
-
     constructor(
         title: string,
         description: string,
         videoUrl: string,
         likes: number,
-        userId: number,
     ) {
         this.title = title;
         this.description = description;
         this.videoUrl = videoUrl;
         this.likes =  likes;
-        this.userId = userId;
     }
 }
